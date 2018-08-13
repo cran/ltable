@@ -1,0 +1,3 @@
+  importFrom("stats", "addmargins", "ftable")
+  importFrom("utils", "write.table")
+  export("table_f")
