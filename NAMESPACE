@@ -1,3 +1,22 @@
-  importFrom("stats", "addmargins", "ftable")
-  importFrom("utils", "write.table")
+useDynLib("ltable", .registration=TRUE)
+
+  importFrom("stats", "addmargins", "ftable", "is.empty.model", "model.matrix", "model.response",
+             "pnorm", "qnorm", "quantile", "reshape","rnorm", "runif")
+  
+  importFrom("graphics", "legend", "lines", "mtext", "par")
+  importFrom("methods", "new", "validObject")
+  importFrom("clipr", "write_clip")
+  importFrom("RcppGSL", "fastLm")
+  import(Rcpp)
+
+
   export("table_f")
+  export("tableToData")
+  export("PowerPoisson")
+
+exportClasses("powerClass")
+exportMethods(
+    "[",
+    "plot",
+    "print"
+)
