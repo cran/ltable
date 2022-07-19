@@ -34,8 +34,10 @@ Also, Q0.05, Q01, Q0.5 (median) quantiles are graphed in lines.
 \examples{
 require(ltable)
 data(tdata, package="ltable")
-pres<-PowerPoisson(Counts~smoker +contraceptive +tromb +  
-contraceptive*tromb, scale_max=1.5, effect="contraceptive*tromb", data=tdata)
+## For better illustration You should increase draw and burnin pars
+pres<-MCPower(Counts~smoker +contraceptive +tromb +  
+contraceptive*tromb, scale_max=1.5, effect="contraceptive*tromb", 
+data=tdata, draw=1000, burnin=300)
 plot(pres)
 plot(pres, stencil=3)
 }

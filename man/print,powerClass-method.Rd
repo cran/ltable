@@ -25,7 +25,7 @@ Arg \emph{choice="power"} prints results of power analysis in given range of sam
 \item{\dots}{not used}
 }
 \details{
-Fit statistic \emph{Jacobian reciprocal condition number} measures the inverse sensitivity of the solution to small perturbations in the input data. It tends to zero as J tends to singularity indicating solution instability. \cr
+Fit statistic \emph{Jacobian reciprocal condition number} measures the inverse sensitivity of the solution to small perturbations in the input data. It tends to zero as \emph{J} tends to singularity indicating solution instability. \cr
 The value of ch-squared per degree of freedom \emph{chisq/dof} approximately 1 indicates a good fit. If \emph{chisq/dof} >> 1  the error estimates obtained from the covariance matrix will be too small and should be multiplied by square root of \emph{chisq/dof}. \cr
 Poor fit will result from the use of an inappropriate model.\cr 
 BEWARE: Poor fit jeopardizes the validity of power analysis.
@@ -33,10 +33,13 @@ BEWARE: Poor fit jeopardizes the validity of power analysis.
 \examples{
 require(ltable)
 data(tdata, package="ltable")
-pres<-PowerPoisson(Counts~smoker +contraceptive +tromb +  
-contraceptive*tromb, scale_max=1.5, effect="contraceptive*tromb", data=tdata)
+## For better illustration You should increase draw and burnin pars
+pres<-MCPower(Counts~smoker +contraceptive +tromb +
+contraceptive*tromb, scale_min = 0.5, scale_max=1.5, 
+effect="contraceptive*tromb", data=tdata, draw=1000, burnin=300)
 print(pres, "model")
-print(pres)
+print(pres, "power")
+
 }
 \keyword{methods}
 

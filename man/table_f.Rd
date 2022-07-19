@@ -21,7 +21,7 @@ table_f(data, datavars, type=1, digits=2, extended=FALSE, MV=FALSE, cb=FALSE)}
 \itemize{
 \item{You can construct table with data set fields of factor, character, logical, and numeric classes.}
 \item{To insert table into Word document first open Excel, choose left high corner of placement by mouse click and use Ctrl+V combination or click on the Paste icon (the clipboard), then use Ctrl+C, open Word document, use Ctrl+V to place the table.}
-\item{If You want to use clipboard to insert table into Word document use option cb=TRUE.}
+\item{If You want to use clipboard to insert table into Word document use option cb=TRUE. You will be asked to confirm, for previous information of clipboard would be lost.}
 
 	}
 	}

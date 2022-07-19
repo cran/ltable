@@ -97,20 +97,22 @@ setMethod(
           
     }
       }
+      cat(sprintf("%s%*.2e%*.2e%*.2e%*.1e","phi", l-1, x["estim",1]$phi, 10, x["estim",1]$errors[vparsize+1],
+                  10, abs(x["estim",1]$phi/x["estim",1]$errors[vparsize+1]), 10, pnorm(z_value, lower.tail = FALSE)*2),"\n")
+      
       cat("\n\nModel fit:\n")
-      cat("Weighted nonlinear least-squares fitting\n")
-      cat("Method|Solver: Levenberg-Marquardt\n")
-      cat("Algorithm: trust region\n")
-      cat("initial |f(x)| = ", x["estim",1]$`initial |f(x)|`, "\n")
-      cat("final |f(x)| = ", x["estim",1]$`final |f(x)|`, "\n")
-      cat("Jacobian reciprocal condition number = ", x["estim",1]$`Jacobian reciprocal condition number`, "\n")
-      cat("number of iterations = ", x["estim",1]$`number of iterations`, "\n")
-      cat("reason for stopping: ", x["estim",1]$`reason for stopping`, "\n")
-      cat("chisq/dof = ", x["estim",1]$`chisq/dof`, "\n")
-      cat("status: ", x["estim",1]$status, "\n")
-   
+      cat("MCMC fitting\n")
+      cat("Samplers : Gibbs for expected counts, Slice for regr. coeff. and inv.var.par. phi\n")
+      cat("Language: R\n")
+      cat("Jacobian reciprocal condition number = ", x["estim",1]$Jacobian_rcnumber, "\n")
+      cat("chisq/n = ", x["estim",1]$chi_sq, "\n")
+      cat("Deviance= ", x["estim",1]$dev, "\n")
+      cat("NULL Deviance= ", x["estim",1]$dev0, "\n")
+      cat("Log.likelihood= ", x["estim",1]$LL, "\n")
+      
+
       message("\nWarning:\nJacobian reciprocal condition number measures the inverse sensitivity of the solution to small perturbations in the input data. It tends to zero as J tends to singularity indicating solution instability.")
-      message("\nThe value of ch-squared per degree of freedom (chisq/dof) approximately 1 indicates a good fit.")
+      message("\nThe value of ch-squared per number of cells (chisq/n) approximately 1 indicates a good fit.")
       message("If chisq/dof >> 1  the error estimates obtained from the covariance matrix will be too small and should be multiplied by square root of chisq/dof .")
       message("Poor fit will result from the use of an inappropriate model, and the scaled error estimates may then be outside the range of validity for Gaussian errors.")
       message("BEWARE:\nPoor fit jeopardizes the validity of power analysis.")

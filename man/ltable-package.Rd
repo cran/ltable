@@ -5,13 +5,13 @@
 ltable}
 
 \description{
-\bold{Constructs tables of counts and proportions out of data sets.}
+\bold{Constructs tables of counts and proportions out of data sets. Performs log-linear and power analyzes of tabulated data}
 }
 
 
 \details{
 
-In order to perform log-linear and power analyses for tabulated data GSL: GNU Scientific Library has to be installed first (reference 1). Log-linear analysis features some advantages against glm \{stats\}, first of all due to stability of GSL IWLS algorithms that insures distinctly less biased covariances estimates, pivot issue for implemented power analysis. In some instances hypothesis testing of higher order effects disagrees with that of glm on account of larger GSL estimated errors. Another though related enhancement is distinct better fit assessed by sum of squared differences between observed and expected counts. Results of power analysis backed up with MCMC delivered approach (reference 2).  
+Gibbs sampling based log-linear analysis features some advantages against \emph{glm \{stats\}}, first of all due to fixing overdispersion by NB2 posterior marginal distribution of counts that insures distinctly less biased covariance estimates, pivot issue for implemented power analysis. In some instances hypothesis testing of higher order effects disagrees with that of \emph{glm \{stats\}} on account of larger NB2 model based errors estimates. Another though related enhancement is distinct better fit assessed by sum of squared differences between observed and expected counts. Results of power analysis backed up with MCMC BUGS delivered approach (reference 2).  
 
 }
 
@@ -25,7 +25,9 @@ In order to perform log-linear and power analyses for tabulated data GSL: GNU Sc
 You can:
 \enumerate{
 \item{construct tables with data set fields of factor, character, logical, and numeric classes;}
-\item{insert tables into Excel and Word documents using clipboard, into LaTeX, HTML, Markdown and reStructuredText documents by the knitr::kable agency.}
+\item{insert tables into Excel and Word documents using clipboard, into LaTeX, HTML, Markdown and reStructuredText documents by the knitr::kable agency;}
+\item{perform Gibbs sampling based log-linear analysis;}
+\item{perform power analysis of selected effect.}
 		}
 	}
 
@@ -40,6 +42,6 @@ knitr::kable(table_f(sdata, "a,b,c,d", type=2, digits=3))
 table_f(sdata, "b,c,a,d", MV=TRUE, extended=TRUE, cb=TRUE)
 }
 \references{
-1. GSL: GNU Scientific Library: \url{http://www.gnu.org/software/gsl/},\cr 2. Ocheredko O.M. MCMC Bootstrap Based Approach to Power and Sample Size Evaluation. \url{https://www.amazon.com/gp/product/1946728039/}}
+Ocheredko O.M. MCMC Bootstrap Based Approach to Power and Sample Size Evaluation. \url{https://www.amazon.com/gp/product/1946728039/}}
 \keyword{ package }
 

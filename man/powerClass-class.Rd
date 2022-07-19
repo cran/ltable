@@ -53,10 +53,12 @@ require(ltable)
 showClass("powerClass")
 new("powerClass")
 data(tdata, package="ltable")
-pres<-PowerPoisson(Counts~smoker +contraceptive +tromb +  
-contraceptive*tromb, scale_max=1.5, effect="contraceptive*tromb", data=tdata)
+## For better illustration You should increase draw and burnin pars
+pres<-MCPower(Counts~smoker +contraceptive +tromb +  
+contraceptive*tromb, scale_max=1.5, effect="contraceptive*tromb", 
+draw=1000, burnin=300, data=tdata)
 print(pres)
-plot(pres)
+plot(pres,3)
 pres["estim", 1]$betas
 pres["power11", 1]$power
 pres["power1", 1]$z

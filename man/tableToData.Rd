@@ -2,7 +2,7 @@
 \alias{tableToData}
 \title{Function \emph{tableToData}}
 \description{
-Constructs data.frames that fit glm or PowerPoisson modelling out of tables created with function \emph{table_f}.
+Constructs \emph{data.frames} that fit \emph{glm\{stats\}} or \emph{MCLogLin\{ltable\}}, \emph{MCPower\{ltable\}} modelling out of tables created with function \emph{table_f\{ltable\}}.
 }
 \usage{
 tableToData(tname, numerictype="", orderedtype="")
@@ -15,7 +15,7 @@ tableToData(tname, numerictype="", orderedtype="")
 \details{
 \itemize{
 \item{Variables of character and logical classes shape the same design as does the factor class, therefore there is no need to change them to factors.}
-\item{Check the input and output. Good practice is to have data without zero counts. In the Poisson GLM, the mean and variance are the same thing. The implication of this is that as the mean tends to zero, so must the variance. Still we do have some uncertainty about this fitted value. Of the same nature (but converse) problem is with cells of large counts.}
+\item{Check the input and output. It's not a problem to have huge counts together with zero counts for NB2 model used in \emph{ltable}. Still good practice to proceed with power analisis is to have data without zero counts. It's in no way detrimental as in the case of the Poisson GLM, having the mean and variance equality. The implication with Poisson GLM is that as the mean tends to zero, so must the variance. Still we do have some uncertainty about this fitted value. Of the same nature (but converse) problem is with cells of large counts.}
 \item{You can build the data by hand and skip this functionality.}
 	}
 	}
@@ -36,11 +36,12 @@ tableToData(tname, numerictype="", orderedtype="")
 
 \examples{
 require(ltable)
-data(sdata, package="ltable")
-stab<-table_f(sdata, "a,b,c")
-sdat<-tableToData(stab, orderedtype="c")
-res<-PowerPoisson(Counts~a+b+c+a*c, effect="a*c", data=sdat)
-plot(res, st=3)
+data(iris)
+iriscut<-with(iris, data.frame(PL=cut(Petal.Length,3),
+                               PW=cut(Petal.Width,3)))
+irist<-table_f(iriscut,"PL,PW")
+irisd<-tableToData(irist, ordered="PL,PW")
+
 }
 
 

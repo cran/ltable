@@ -32,24 +32,26 @@ See \emph{powerClass-class} index.}
 
 \examples{
 require(ltable)
+require(ltable)
 data(tdata, package="ltable")
-pres<-PowerPoisson(Counts~smoker +contraceptive +tromb +  
-contraceptive*tromb, scale_max=1.5, effect="contraceptive*tromb", data=tdata)
+## For better illustration You should increase draw and burnin pars
+pres<-MCPower(Counts~smoker +contraceptive +tromb +  
+contraceptive*tromb, scale_max=1.5, effect="contraceptive*tromb", 
+data=tdata, draw=1000, burnin=300)
 # get call
 pres["cal"]
 # get effect contrasts names
 pres["effectsname"]
 # get Jacobian reciprocal condition number in smallest sample
-pres["estim",1]$`Jacobian reciprocal condition number`
-# get chisq/dof in smallest sample
-pres["estim",1]$`chisq/dof`
-# get reason for stopping iterations
-pres["estim",1]$`reason for stopping`
-# get initial sum of squared differences between observed and expected counts
-pres["estim",1]$`initial |f(x)|`
-# get final sum of squared differences between observed and expected counts
-pres["estim",1]$`final |f(x)|`
-# get iteration number of GSL non-linear LS fitting
-pres["estim",1]$`number of iterations`
+pres["estim",1]$Jacobian_rcnumber
+# get chisq/n in smallest sample
+pres["estim",1]$chi_sq
+# get LogLikelihood
+pres["estim",1]$LL
+# get initial deviation between observed and expected counts
+pres["estim",1]$dev0
+# get final deviation between observed and expected counts
+pres["estim",1]$dev
+
 }
 \keyword{methods}

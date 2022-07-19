@@ -1,18 +1,18 @@
-useDynLib("ltable", .registration=TRUE)
 
   importFrom("stats", "addmargins", "ftable", "is.empty.model", "model.matrix", "model.response",
-             "pnorm", "qnorm", "quantile", "reshape","rnorm", "runif")
+             "pnorm", "qnorm", "quantile", "reshape","rnorm", "runif", "cov", "rgamma")
   
   importFrom("graphics", "legend", "lines", "mtext", "par")
   importFrom("methods", "new", "validObject")
   importFrom("clipr", "write_clip")
-  importFrom("RcppGSL", "fastLm")
-  import(Rcpp)
+
 
 
   export("table_f")
   export("tableToData")
-  export("PowerPoisson")
+  export("MCLogLin")
+  export("MCPower")
+  
 
 exportClasses("powerClass")
 exportMethods(
