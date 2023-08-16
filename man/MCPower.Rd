@@ -5,12 +5,13 @@
 Performs power analyses for constructed tabulated data based on based on Gibbs sampler with NB2 posterior marginal distribution for counts
 }
 \usage{
-MCPower(formula, data, contrasts=NULL, XLB=-100, XUB=100, a=0.1, b=0.1,
+MCPower(formula, data, offset, contrasts=NULL, XLB=-100, XUB=100, a=0.1, b=0.1,
 scale_min=1, scale_max=5, effect, p_alpha=0.05, draw=10000, burnin=3000)
 }
 \arguments{
 \item{formula}{a symbolic description of the model to be fit.}
 \item{data}{name of the data set; object of \emph{data.frame} class}
+\item{offset}{variable in the data set to be used as offset.}
 \item{contrasts}{serves to choose types of contrasts to study effects of factors, same with \emph{glm\{stats\}}), orthogonal polynomials by default}
 \item{XLB}{the vector of smallest possible values of regression effects \emph{betas}; can be number if pertains to all \emph{betas}.}
 \item{XUB}{the vector of largest possible values of regression effects \emph{betas}; can be number if pertains to all \emph{betas}.}
@@ -48,7 +49,7 @@ The inspected sample size range defined by scale_min - scale_max automatically i
 
 \seealso{
 \code{\link[stats:glm]{glm}}
-\code{\link[MCMCglmm:MCMCglmm]{MCMCglmm}}
+
 
 
 }

@@ -56,7 +56,7 @@ setReplaceMethod(
 
 
 
-MCPower<-function (formula, data, contrasts=NULL, XLB=-100, XUB=100, a=0.1, b=0.1, scale_min=1, scale_max=5, effect, p_alpha=0.05, draw=10000, burnin=3000)
+MCPower<-function (formula, data, offset, contrasts=NULL, XLB=-100, XUB=100, a=0.1, b=0.1, scale_min=1, scale_max=5, effect, p_alpha=0.05, draw=10000, burnin=3000)
 {
   stopifnot("\npars a and b should excced zero\n"= a>0 && b>0)
   stopifnot("\npar draw should exceed par burnin at least by 3000\n"= draw-burnin > 500)
@@ -65,11 +65,9 @@ MCPower<-function (formula, data, contrasts=NULL, XLB=-100, XUB=100, a=0.1, b=0.
   if (missing(data)) 
     data <- environment(formula)
 
-  vars<-unlist(strsplit(effect,"[*]"))
-  lengthvars<-length(vars)
-  stopifnot("\nIn effect= use pattern varnames delimited with *,\ne.g., effect=\"vname1*vname3*vname4\"\n"= all(vars %in% colnames(data)) 
-            && lengthvars>1)
-  stopifnot("\nYou have used same varname several times in effect\n"=length(vars)==length(unique(vars)) )
+    vars<-unlist(strsplit(effect,"[*]"))
+    lengthvars<-length(vars)
+    stopifnot("\nYou have used same varname several times in effect\n"=length(vars)==length(unique(vars)) )
   
   mf <- match.call(expand.dots = FALSE)
   m <- match(c("formula", "data"), names(mf), 0L)
@@ -90,6 +88,7 @@ MCPower<-function (formula, data, contrasts=NULL, XLB=-100, XUB=100, a=0.1, b=0.
   X <- if (!is.empty.model(mt)) 
   model.matrix(mt, mf, contrasts)
   else matrix( , NROW(Y), 0L)
+ ## stopifnot("\nIn effect= use MCLogLin output name of effect with symbols \"*\" instead of \":\" for second and higher order effect,\ne.g., effect=\"vname1*vname3*vname4\"\n"= all(vars %in% colnames(X))) 
   
   nbeta<-dim(X)[2]
   if (length(XLB) == 1) {XLB<-array(XLB, dim=c(nbeta,1))}
@@ -101,29 +100,63 @@ MCPower<-function (formula, data, contrasts=NULL, XLB=-100, XUB=100, a=0.1, b=0.
   if (any (XLB >= XUB)) {stop(simpleError("Lower boundaries should be smaller than upper\n"))}
   else {}
   
-  #**pick up related to effect columns out of design mat X in var whichcols**#  
-  varsp<-"["
-  for(i in seq_along(vars) ) varsp<-paste0(varsp, vars[i])
-  varsp<-paste0(varsp, "].+:") 
-  patterneffect=""
-  for(i in seq_along(vars)-1 ) patterneffect<-paste0(patterneffect, varsp)
-  patterneffect<-substr(patterneffect,1,nchar(patterneffect)-1)
-  whichcols<-which( sapply(colnames(X), function(x) grepl(patterneffect,x)) )
-  purify=integer(0)
-  c<-sapply(colnames(X)[whichcols], function(x) strsplit(x, "[:]"))
-  for(i in seq_along(whichcols)) if (length(c[[i]])!=lengthvars) purify<-c(purify,i) 
-  if(length(purify)>0) whichcols<-whichcols[-purify]
+  if(lengthvars==1)
+  {
+    whichcols<-which(colnames(X)==effect)
+  } else {
+    #pick up related to effect columns out of design mat X in var whichcols**#  
+    varsp<-"["
+    for(i in seq_along(vars) ) varsp<-paste0(varsp, vars[i])
+    varsp<-paste0(varsp, "].+:") 
+    patterneffect=""
+    for(i in seq_along(vars)-1 ) patterneffect<-paste0(patterneffect, varsp)
+    patterneffect<-substr(patterneffect,1,nchar(patterneffect)-1)
+    whichcols<-which( sapply(colnames(X), function(x) grepl(patterneffect,x)) )
+    purify=integer(0)
+    c<-sapply(colnames(X)[whichcols], function(x) strsplit(x, "[:]"))
+    for(i in seq_along(whichcols)) if (length(c[[i]])!=lengthvars) purify<-c(purify,i) 
+    if(length(purify)>0) whichcols<-whichcols[-purify]
+  }
   
   scalevec=seq(scale_min,scale_max, by=(scale_max - scale_min)/10)
 
+if(!missing(offset)) 
+{
+  Ylength<-length(Y)
+  ar<-eval(substitute(data$offset), envir=environment(MCLogLin))
+  exposure<-array(ar, dim=c(Ylength,1))
+} else {
+  exposure<-0
+}
 
     powerClassObject<-new("powerClass", varnames=colnames(X), effectsname=colnames(X)[whichcols], cal=cal, Ntotal=c(sum(Y), scale_min, scale_max) )
  
   
   for (i in 1:11) {
+    modified_exposure<-exposure 
+    if(length(exposure)<=1)
     Z<-cbind(Y*scalevec[i],X)
+    else{ 
+    if(scalevec[i]<1){
+        rec_to_remove<-round(Ylength*(1-scalevec[i]))
+        n_a<-sample(1:Ylength, rec_to_remove, replace=FALSE)    
+        Z<-cbind(Y,X) 
+        Z<-Z[-n_a,]
+        modified_exposure<-modified_exposure[-n_a, 1, drop=FALSE]
+      } 
+      else if(scalevec[i]==1)  {
+        Z<-cbind(Y,X)
+      } else {
+      rec_to_add<-round(Ylength*(scalevec[i]-1))
+        Z<-cbind(Y,X)
+        n_a<-sample(1:Ylength, rec_to_add, replace=TRUE)
+        Z<-rbind(Z,Z[n_a,])
+        modified_exposure<-rbind(modified_exposure, modified_exposure[n_a, 1, drop=FALSE])
+      }
+      }
 
-    powerClassObject["estim",i]<-LogLinEst(formula=formula, data=Z, ii=i, contrasts=contrasts, XLB=XLB, XUB=XUB, a=a, b=b, draw=draw, burnin=burnin)
+
+    powerClassObject["estim",i]<-LogLinEst(formula=formula, data=Z, modified_exposure, ii=i,  contrasts=contrasts, XLB=XLB, XUB=XUB, a=a, b=b, draw=draw, burnin=burnin)
                   betas000initdraw<-powerClassObject["estim",i]$betas
                   if(i==1) {phi000initdraw<-powerClassObject["estim",i]$phi} else {}                  
                   }
@@ -135,6 +168,7 @@ MCPower<-function (formula, data, contrasts=NULL, XLB=-100, XUB=100, a=0.1, b=0.
     vbetas[i,]<-powerClassObject["estim",i]$betas[whichcols]
     verrors[i,]<-powerClassObject["estim",i]$errors[whichcols]
     }
+
     results<-mapply(FUN = simpower, vbetas[1,], verrors[1,], cl)
      for(i in 1:nsim){
       powerClassObject["power1",i] <- list(betas=results[1,i]$betas, z= results[2,i]$z, power=results[3,i]$power)
@@ -185,7 +219,7 @@ MCPower<-function (formula, data, contrasts=NULL, XLB=-100, XUB=100, a=0.1, b=0.
 }
 #END OF MCPower
 
-LogLinEst<-function(formula, data, ii, contrasts, ibetas, iphi, XLB, XUB, a, b, draw, burnin )
+LogLinEst<-function(formula, data, exposure, ii, contrasts, ibetas, iphi, XLB, XUB, a, b, draw, burnin )
 {
   Y<-data[,1, drop=FALSE]
   X<-data[,2:dim(data)[2], drop=FALSE]
@@ -208,7 +242,12 @@ LogLinEst<-function(formula, data, ii, contrasts, ibetas, iphi, XLB, XUB, a, b, 
   ##DRAWS BEGINNING
   for(i in 1:draw){
     Xbeta<-X%*%beta
-    lambda<- vrgamma(1, Y+cphi, 1+cphi*exp(-Xbeta))
+    if(length(exposure)<=1) 
+      lambda<- vrgamma(1, Y+cphi, 1+cphi*exp(-Xbeta))
+    else
+      
+      lambda<- vrgamma(1, Y+cphi, exposure+cphi*exp(-Xbeta))  
+    
     dim(lambda)<-c(nlambda,1)
     drawset[i,1:nlambda]<-lambda
     
@@ -229,17 +268,24 @@ if (ii == 1)
   COVAR<-0
   lambda<-colMeans(drawset[burnin:draw,1:nlambda])
   cphi<-mean(drawset[burnin:draw, nlambda+nbeta+1])
-  for(i in 1:nlambda){
-    phi<-ifelse(cphi>1, cphi, 1)
-    k<-lambda[i]/(1+lambda[i]/phi)
-    COVAR<-COVAR + k*(t(X[i, , drop = FALSE]) %*% X[i, , drop = FALSE])
+  if(length(exposure)<=1) {
+    for(i in 1:nlambda){
+      k<-lambda[i]/(1+lambda[i]/cphi)
+      COVAR<-COVAR + k*(t(X[i, , drop = FALSE]) %*% X[i, , drop = FALSE])
+    }
+    
+  } else {
+    for(i in 1:nlambda){
+      k<-lambda[i]*exposure[i]/(1+lambda[i]*exposure[i]/cphi)
+      COVAR<-COVAR + k*(t(X[i, , drop = FALSE]) %*% X[i, , drop = FALSE])
+    }
   }
-
-  COVAR<-tryCatch(qr.solve(COVAR, tol=1e-7), error=function(c) {
+  
+ COVAR<-tryCatch(qr.solve(COVAR, tol=1e-7), error=function(c) {
     stop("Sorry, can't proceed with singular Hessian matrix\n", call. = FALSE)
   }
-                  )
-  
+  )
+
   errors<-sqrt(diag(COVAR))
 
  sumcphi<-function(cphi, J, y) {
@@ -261,27 +307,60 @@ if (ii == 1)
  const3<-lambda/((1/cphi)^2*(1+lambda/cphi))
  errors[nbeta+1]<-cphi*sqrt(1/sum(const1*const2^2+const3))*cphi
 
+ LP<-Xbeta
 if( ii==1)
 {
-  m_lam<-mean(lambda)
-  for(i in 1:nlambda){
-    dev<-0
-    dev0<-0
-    if (Y[i] > 0) {
-      dev<-dev+Y[i]*log(Y[i]/lambda[i]) - (Y[i]+cphi)*log((Y[i]+cphi)/(lambda[i]+cphi))
-      dev0<-dev0+Y[i]*log(Y[i]/m_lam) - (Y[i]+cphi)*log((Y[i]+cphi)/(m_lam+cphi))
-    } else { 
-      dev<-dev+cphi*log(1+lambda[i]/cphi)
-      dev0<-dev0+cphi*log(1+m_lam/cphi)
+  m_expLP<-mean(exp(LP))
+  
+  if(length(exposure)<=1) 
+  {
+    for(i in 1:nlambda){
+      dev<-0
+      dev0<-0
+      if (Y[i] > 0) {
+        dev<-dev+Y[i]*log(Y[i]/exp(LP[i])) - (Y[i]+cphi)*log((Y[i]+cphi)/(exp(LP[i])+cphi))
+        dev0<-dev0+Y[i]*log(Y[i]/m_expLP) - (Y[i]+cphi)*log((Y[i]+cphi)/(m_expLP+cphi))
+      } else { 
+        dev<-dev+cphi*log(1+exp(LP[i])/cphi)
+        dev0<-dev0+cphi*log(1+m_expLP/cphi)
+      }
+    }
+  }
+  else ##with offset
+  {
+    m_exposure<-mean(exposure)
+    for(i in 1:nlambda){
+      dev<-0
+      dev0<-0
+      if (Y[i] > 0) {
+        dev<-dev+Y[i]*log(Y[i]/(exp(LP[i])*exposure[i])) - (Y[i]+cphi)*log((Y[i]+cphi)/(exp(LP[i])*exposure[i]+cphi))
+        dev0<-dev0+Y[i]*log(Y[i]/(m_expLP*m_exposure)) - (Y[i]+cphi)*log((Y[i]+cphi)/(m_expLP*m_exposure+cphi))
+      } else { 
+        dev<-dev+cphi*log(1+exp(LP[i])*exposure[i]/cphi)
+        dev0<-dev0+cphi*log(1+m_expLP*m_exposure/cphi)
+      }
     }
   }
   dev<-2*dev
   dev0<-2*dev0
  
-  LL<-sum(lgamma(Y+cphi) - lgamma(Y+1) - lgamma(cphi) +
-            cphi*log(cphi/(lambda+cphi)) + Y*log(lambda/(lambda+cphi)))
-  Jacobian_rcnumber <- rcond(solve(chol(COVAR)), triangular=TRUE)  
-  chi_sq <- sum((Y-lambda)^2/(lambda+lambda^2/cphi))/nlambda 
+  if(length(exposure)<=1) 
+  {
+    LL<-sum(lgamma(Y+cphi) - lgamma(Y+1) - lgamma(cphi) +
+              cphi*log(cphi/(exp(LP)+cphi)) + Y*log(exp(LP)/(exp(LP)+cphi)))
+  }
+  else
+  {
+    LL<-sum(lgamma(Y+cphi) - lgamma(Y+1) - lgamma(cphi) +
+              cphi*log(cphi/(exp(LP)*exposure+cphi)) + Y*log(exp(LP)*exposure/(exp(LP)*exposure+cphi)))
+  }
+  
+  Jacobian_rcnumber <- rcond(solve(chol(COVAR)), triangular=TRUE)
+  if(length(exposure)<=1)  
+    chi_sq <- sum((Y-lambda)^2/(lambda+lambda^2/cphi))/nlambda
+  else {
+    chi_sq <- sum((Y-lambda*exposure)^2/(lambda*exposure+(lambda*exposure)^2/cphi))/nlambda
+  } 
 } else {}
  
   if(nbeta > 1) 

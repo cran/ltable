@@ -5,12 +5,13 @@
 Performs log-linear analyses for constructed tabulated data based on Gibbs sampler with NB2 posterior marginal distribution for counts
 }
 \usage{
-MCLogLin(formula, data, contrasts=NULL, XLB=-100, XUB=100, a=0.1, b=0.1,
+MCLogLin(formula, data, offset, contrasts=NULL, XLB=-100, XUB=100, a=0.1, b=0.1,
 DIC=FALSE, pcov=FALSE, draw=10000, burnin=3000 )
 }
 \arguments{
 \item{formula}{a symbolic description of the model to be fit.}
 \item{data}{name of the data set; object of \emph{data.frame} class}
+\item{offset}{variable in the data set to be used as offset.}
 \item{contrasts}{serves to choose types of contrasts to study effects of factors, the same with \emph{glm\{stats\}}), orthogonal polynomials by default}
 \item{XLB}{the vector of smallest possible values of regression effects \emph{betas}; can be number if pertains to all \emph{betas}.}
 \item{XUB}{the vector of largest possible values of regression effects \emph{betas}; can be number if pertains to all \emph{betas}.}
@@ -26,7 +27,7 @@ DIC=FALSE, pcov=FALSE, draw=10000, burnin=3000 )
 \details{
 \itemize{
 \item{Performs log-linear modelling with supplied data by using Gibbs sampler.}
-\item{Printing output includes standard table of parameters estimates, goodness of fit indicators, analysis of residuals. On the prompt it prints the deviance information criteria with its components as well as covariance and correlation matricies of the model parameters }
+\item{Printing output includes standard table of parameters estimates, goodness of fit indicators, analysis of residuals. On the prompt it prints the deviance information criteria with its components as well as covariance and correlation matricies of the model parameters. By using parameter (\emph{offset}) one can model risks and relative risks instead of counts.}
 	}
 	}
 \value{returns a matrix with columns of chains of sampled values of model parameters (expected counts, regression coefficients, inverce dispersion parameter) to be studied by MCMC facilitating packages (e.g., coda, mcmc, mcmcplot, etc.)}
@@ -46,7 +47,6 @@ Function provides better conditioned variance matrix estimates against function 
 
 \seealso{
 \code{\link[stats:glm]{glm}}
-\code{\link[MCMCglmm:MCMCglmm]{MCMCglmm}}
 
 
 }

@@ -39,14 +39,12 @@ Objects can be created by calls of the form \code{new("powerClass", ...)}.
 	 }
 }
 \references{
-1. GSL: GNU Scientific Library: \url{http://www.gnu.org/software/gsl/},\cr 2. Ocheredko O.M. MCMC Bootstrap Based Approach to Power and Sample Size Evaluation. \url{https://www.amazon.com/gp/product/1946728039/}}
+Ocheredko O.M. MCMC Bootstrap Based Approach to Power and Sample Size Evaluation. \url{https://www.amazon.com/gp/product/1946728039/}}
 
 \author{
 {Ocheredko Oleksandr}
 \email{Ocheredko@yahoo.com}
 }
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \examples{
 require(ltable)

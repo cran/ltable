@@ -9,10 +9,10 @@ setMethod(
     vbetasize<-length(names)
     vnames<-x["varnames"]    
     vparsize<-length(vnames)
+    effectIndex<-which(vnames==names)
     samplesize<-seq(from=x["Ntotal",2], to=x["Ntotal",3], by=(x["Ntotal",3] - x["Ntotal",2])/10)*x["Ntotal",1]
  
-    
-    if (choice=="power") {
+     if (choice=="power") {
     
       for(i in 1:vbetasize) {
        
@@ -34,8 +34,14 @@ setMethod(
         p0.05<-numeric(0)
         p0.025<-numeric(0)
         
-        cat("Test statistic Z:                    Quantiles\n")
-        cat("Sample size:",  "Q0.025", "Q0.05", "Q0.1", "Q0.2", "Q0.3", "Q0.4", "Q0.5", "\n", sep="\t")
+        cat("Sample size*:", "Coefficients", "Errors", "\n", sep="\t")
+        for(j in 1:11) {
+          cat(sprintf("%d%*.5f%*.5f", round(samplesize[j]), 18, x["estim",j]$betas[effectIndex], 18, x["estim",j]$errors[effectIndex]), "\n")
+          
+                }
+                       
+        cat("\nTest statistic Z:                    Quantiles\n")
+        cat("Sample size*:",  "Q0.025", "Q0.05", "Q0.1", "Q0.2", "Q0.3", "Q0.4", "Q0.5", "\n", sep="\t")
         
         for(j in 1:11) {
           zq<-quantile(x[paste0("power",j),i]$z, probs=c(0.025,0.05,0.1,0.2,0.3,0.4,0.5))
@@ -55,7 +61,7 @@ setMethod(
       cat("\nPower:                               Quantiles\n")
       
         
-      cat("Sample size:",  "Q0.025", "Q0.05", "Q0.1", "Q0.2", "Q0.3", "Q0.4", "Q0.5", "\n", sep="\t")
+      cat("Sample size*:",  "Q0.025", "Q0.05", "Q0.1", "Q0.2", "Q0.3", "Q0.4", "Q0.5", "\n", sep="\t")
         
         for(j in 1:11) {
           pq<-quantile(x[paste0("power",j),i]$power, probs=c(0.025,0.05,0.1,0.2,0.3,0.4,0.5))
@@ -68,19 +74,17 @@ setMethod(
           p0.5<-c(p0.5,pq[7])
           cat(sprintf("%s%*.2f%*.2f%*.2f%*.2f%*.2f%*.2f%*.2f", round(samplesize[j]), 18, p0.025[j], 8, p0.05[j], 7, p0.1[j], 8, p0.2[j], 8, p0.3[j], 8, p0.4[j], 8, p0.5[j]), "\n")
         }
-        
-        
       }
-    
+      cat("*Sample size in models with offset indicates number of cases (events)")
     } else if (choice=="model"){
       cat("\nCall:\n")
       print (x["cal"])
-      
+      message("\nModel estimates for smallest indicated sample size given by scale_min")
       cat("\n\nCoefficients:\n")
  
       l<-40L
       cat(sprintf("%*s %*s %*s %*s" , l+2, "Estimate", 8, "Std.Error", 8, "|z-score|", 11,"Pr(>|z|)\n")) 
-    
+
       for(j in 1:vparsize) {
         z_value<-abs(x["estim",1]$betas[j]/x["estim",1]$errors[j])  
         
