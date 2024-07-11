@@ -9,7 +9,9 @@ setMethod(
     stopifnot("\nargument stencil accepts values {1,2,3} only"= (!missing(stencil) && stencil %in% 1:3) || missing(stencil))
     names<-x["effectsname"]
     vbetasize<-length(names)
-    default<-par(mar=c(3,3,1,1), cex=0.7, cex.main=0.8, cex.axis=0.8)
+#    default<-par(mar=c(3,3,1,1), cex=0.7, cex.main=0.8, cex.axis=0.8)
+    default_par<-par(no.readonly = TRUE)
+    on.exit(par(default_par), add = TRUE)
     samplesizeidx<-seq(from=x["Ntotal",2], to=x["Ntotal",3], by=(x["Ntotal",3] - x["Ntotal",2])/10)*x["Ntotal",1]
     samplesize<-rep(samplesizeidx, each=100)
 
@@ -33,7 +35,7 @@ setMethod(
         else{}
 
 
-    par(default)
+ #   par(default)
   }
 
       )

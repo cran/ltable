@@ -1,9 +1,10 @@
 
   importFrom("stats", "addmargins", "ftable", "is.empty.model", "model.matrix", "model.response",
-             "pnorm", "qnorm", "quantile", "reshape","rnorm", "runif", "cov", "rgamma")
-  
+             "pnorm", "qnorm", "dnorm", "median", "quantile", "reshape","rnorm", "runif", "cov", "rgamma")
   importFrom("graphics", "legend", "lines", "mtext", "par")
   importFrom("methods", "new", "validObject")
+  importFrom("MASS", "fitdistr")
+  importFrom("nloptr", "nloptr")
   importFrom("clipr", "write_clip")
 
 
@@ -12,6 +13,7 @@
   export("tableToData")
   export("MCLogLin")
   export("MCPower")
+  export("renewal")
   
 
 exportClasses("powerClass")

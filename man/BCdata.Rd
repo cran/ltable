@@ -29,6 +29,6 @@ res1<-MCLogLin(cases~age*year, offset=pyr, data=BCdata, draw=1500, burnin=500)
 }
 
 \references{
-BUGS. Examples Volume 2. \url{https://www.mrc-bsu.cam.ac.uk/wp-content/uploads/WinBUGS_Vol2.pdf } 
+BUGS. Examples Volume 2. \url{http://eio.usc.es/pub/mjginzo/descargas/leyenda/Documents/R/win-library/2.12/BRugs/OpenBUGS/Examples/Ice.html} 
 }
 \keyword{datasets}
